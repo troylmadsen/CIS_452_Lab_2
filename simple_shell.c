@@ -16,7 +16,7 @@
 void read_input( char **input ) {
 	/* Initial buffer setup */
 	char *buffer;
-	buffer = ( char *)malloc( INPUT_SIZE * sizeof( char ) );
+	buffer = (char *)malloc( INPUT_SIZE * sizeof( char ) );
 
 	/* Read into buffer */
 	fgets( buffer, INPUT_SIZE, stdin );
@@ -25,29 +25,31 @@ void read_input( char **input ) {
 }
 
 //FIXME
-void tokenize( char *input, char **args[] ) {
-	char (*tokens)[MAX_ARGS] = NULL;
+void tokenize( char *input, char ***args ) {
+//	char (*tokens)[MAX_ARGS] = NULL;
 	char *read;
 	int num_read = 0;
 	read = strsep( &input, " " );
 	while ( read != NULL && num_read < MAX_ARGS) {
 		/* Allocate memory for next read */
-		tokens[num_read] = (char *)malloc( sizeof( char * ) );
+//		tokens[num_read] = (char **)malloc( sizeof( char * ) );
 
 		/* Store into buffer */
-		*tokens[num_read] = *read;
+//		*tokens[num_read] = *read;
+		*args[num_read] = read;
+		printf("%s\n", *args[num_read]);
 
 		/* Increment counter */
 		num_read++;
 
 		/* Read next argument */
-
+		//FIXME
 		if (read != NULL) {
 			read = strsep( &input, " " );
 		}
 	}
 
-	args = &tokens;
+//	args = &tokens;
 }
 
 int main() {
@@ -55,8 +57,15 @@ int main() {
 
 	char *input;
 
-	char **args[MAX_ARGS];
-	*args = (char **)malloc( MAX_ARGS * sizeof( char * ) );
+	char ***args;
+
+	/* Allocate memory */
+	args = (char ***)malloc( MAX_ARGS * sizeof( char ** ) );
+	for ( int i = 0; i < MAX_ARGS; i++ ) {
+		args[i] = (char **)malloc( sizeof( char * ) );
+	}
+
+	//FIXME check if args is NULL due to malloc failure
 
 	while ( running ) {
 		/* Await input */
@@ -68,8 +77,6 @@ int main() {
 		/* Get list of arguments */
 		tokenize( input, args );
 
-		printf("Tokenized");
-		printf( "%s\n", args[0] );
 /*
 		if ( strcomp( input, "quit") ) {
 
@@ -82,6 +89,9 @@ int main() {
 
 	/* Freeing memory */
 	free( input );
+	free( args );
+	/*
 	for (int i = 0; i < MAX_ARGS; i++)
 		free( args[i] );
+	*/
 }
