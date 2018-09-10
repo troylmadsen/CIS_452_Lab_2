@@ -10,7 +10,7 @@
 #include <unistd.h>
 
 #define INPUT_SIZE 256
-#define MAX_ARGS 1024
+#define MAX_ARGS INPUT_SIZE
 
 /*
  * A shell emulator that takes in user commands and executes them. Type "quit" to exit the program.
