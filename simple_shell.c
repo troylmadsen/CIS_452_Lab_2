@@ -11,8 +11,8 @@
 #define MAX_ARGS 255
 
 /*
- * Read from STDIN
- * FIXME
+ * Read in command line input to execute.
+ * @param input Pointer to a char * where user input is stored
  */
 void read_input( char **input ) {
 	/* Initial buffer setup */
@@ -28,7 +28,11 @@ void read_input( char **input ) {
 	*input = buffer;
 }
 
-//FIXME
+/*
+ * Tokenize the provided input and store the token into the array.
+ * @param input Buffer of user input to parse
+ * @param args Array of char * to store arguments into
+ */
 void tokenize( char *input, char *args[] ) {
 	char *read;
 	int num_read = 0;
@@ -52,10 +56,13 @@ void tokenize( char *input, char *args[] ) {
 		}
 	}
 	
+	/* Ending args with NULL for execvp */
 	args[ num_read < MAX_ARGS ? num_read : MAX_ARGS - 1 ] = NULL;
 }
 
-//FIXME
+/*
+ * A simple shell emulation that takes in user input and executes it.
+ */
 int main() {
 	/* Program state */
 	bool running = true;
@@ -108,4 +115,6 @@ int main() {
 
 	/* Freeing memory */
 	free( input );
+
+	return 0;
 }
