@@ -19,6 +19,53 @@
  * @Data: 2018/09/10
  */
 
+void test() {
+	char *buffer;
+	int buffer_size = INPUT_SIZE;
+	buffer = (char *)malloc( buffer_size * sizeof( char ) );
+	if ( buffer == NULL ) {
+		perror( "Malloc failure" );
+		exit( 1 );
+	}
+
+	int num_read = 0;
+	char c = getc( stdin );
+	while ( c != '\n' ) {
+		/* Store character in buffer */
+		*(buffer + num_read) = c;
+
+		/* Increment counter */
+		num_read++;
+
+		/* Resize buffer if full */
+		if ( num_read == buffer_size ) {
+			/* Store pointer to old buffer */
+			char *temp = buffer;
+
+			/* Double buffer size and reallocate */
+			buffer_size =  buffer_size * 2;
+			buffer = (char *)malloc( buffer_size * sizeof( char * ) );
+			if ( buffer == NULL ) {
+				perror( "Malloc error" );
+				exit( 1 );
+			}
+
+			/* Copy old buffer to new buffer */
+			for ( int i = 0; i < buffer_size / 2; i++ ) {
+				*(buffer + i) = *(temp + i);
+			}
+
+			/* Deallocate old buffer */
+			free( temp );
+		}
+
+		/* Read in next char */
+		c = getc( stdin );
+	}
+	/* Terminate the string with a NULL pointer */
+	*(buffer + num_read) = '\0';
+}
+
 /*
  * Read in command line input to execute.
  * @param input Pointer to a char * where user input is stored
@@ -26,13 +73,16 @@
 void read_input( char **input ) {
 	/* Initial buffer setup */
 	char *buffer;
-	buffer = (char *)malloc( INPUT_SIZE * sizeof( char ) );
+	int buffer_size = INPUT_SIZE;
+	buffer = (char *)malloc( buffer_size * sizeof( char ) );
 	if ( buffer == NULL ) {
-		printf( "Malloc failure" );
+		perror( "Malloc failure" );
+		exit( 1 );
 	}
 
 	/* Read into buffer */
 	fgets( buffer, INPUT_SIZE, stdin );
+
 
 	/* Store input for use */
 	*input = buffer;
@@ -59,13 +109,14 @@ void tokenize( char *input, char *args[] ) {
 	}
 
 	/* Replace ending whitespace */
+	
 	if ( num_read > 0 ) {
 		char *end = args[ num_read - 1 ] + strlen( args[ num_read - 1 ] ) - 1;
 		if ( isspace( (unsigned char)*end ) ) {
 			*end = *"\0";
 		}
 	}
-	
+
 	/* Ending args with NULL for execvp */
 	args[ num_read < MAX_ARGS ? num_read : MAX_ARGS - 1 ] = NULL;
 }
@@ -140,10 +191,11 @@ int main() {
 				printf( "Child (%d) Involuntary Context Switches: %ld\n", pid, c_nivcsw );
 			}
 		}
-	}
 
-	/* Freeing memory */
-	free( input );
+
+		/* Freeing memory */
+		free( input );
+	}
 
 	return 0;
 }
