@@ -26,7 +26,7 @@ void read_input( char **input ) {
 }
 
 //FIXME
-void tokenize( char *input, char **args[] ) {
+void tokenize( char *input, char *args[] ) {
 //	char (*tokens)[MAX_ARGS] = NULL;
 	char *read;
 	int num_read = 0;
@@ -37,7 +37,7 @@ void tokenize( char *input, char **args[] ) {
 
 		/* Store into buffer */
 //		*tokens[num_read] = *read;
-		*args[num_read] = read;
+		args[num_read] = read;
 //		printf("%s ", *args[num_read]);
 
 		/* Increment counter */
@@ -61,12 +61,12 @@ int main() {
 
 	char *input;
 
-	char **args[MAX_ARGS];
+	char *args[MAX_ARGS];
 
 	/* Allocate memory */
 	//args = (char ***)malloc( MAX_ARGS * sizeof( char ** ) );
 	for ( int i = 0; i < MAX_ARGS; i++ ) {
-		args[i] = (char **)malloc( sizeof( char * ) );
+		args[i] = (char *)malloc( sizeof( char * ) );
 	}
 
 	//FIXME check if args is NULL due to malloc failure
@@ -82,12 +82,12 @@ int main() {
 		tokenize( input, args );
 
 //		printf("x%sx\n", *args[1]);
-		printf("x%sx\n", *args[0]);
-		printf("%d\n", strcmp( *args[0], "quit\n" ) );
-		if ( strcmp( *args[0], "quit\n" ) == 0 ) {
+		printf("x%sx\n", args[0]);
+		printf("%d\n", strcmp( args[0], "quit\n" ) );
+		if ( strcmp( args[0], "quit\n" ) == 0 ) {
 			/* End loop operation */
 			running = false;
-			printf("%s\n", *args[0]);
+			printf("%s\n", args[0]);
 		}
 		else {
 			/* Fork child and run command */
@@ -111,7 +111,10 @@ int main() {
 
 	/* Freeing memory */
 	free( input );
-	free( args );
+	for ( int i = 0; i < MAX_ARGS; i++ ) {
+		free( args[i] );
+	}
+	//free( args );
 	/*
 	for (int i = 0; i < MAX_ARGS; i++)
 		free( args[i] );
