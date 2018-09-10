@@ -19,53 +19,6 @@
  * @Data: 2018/09/10
  */
 
-void test() {
-	char *buffer;
-	int buffer_size = INPUT_SIZE;
-	buffer = (char *)malloc( buffer_size * sizeof( char ) );
-	if ( buffer == NULL ) {
-		perror( "Malloc failure" );
-		exit( 1 );
-	}
-
-	int num_read = 0;
-	char c = getc( stdin );
-	while ( c != '\n' ) {
-		/* Store character in buffer */
-		*(buffer + num_read) = c;
-
-		/* Increment counter */
-		num_read++;
-
-		/* Resize buffer if full */
-		if ( num_read == buffer_size ) {
-			/* Store pointer to old buffer */
-			char *temp = buffer;
-
-			/* Double buffer size and reallocate */
-			buffer_size =  buffer_size * 2;
-			buffer = (char *)malloc( buffer_size * sizeof( char * ) );
-			if ( buffer == NULL ) {
-				perror( "Malloc error" );
-				exit( 1 );
-			}
-
-			/* Copy old buffer to new buffer */
-			for ( int i = 0; i < buffer_size / 2; i++ ) {
-				*(buffer + i) = *(temp + i);
-			}
-
-			/* Deallocate old buffer */
-			free( temp );
-		}
-
-		/* Read in next char */
-		c = getc( stdin );
-	}
-	/* Terminate the string with a NULL pointer */
-	*(buffer + num_read) = '\0';
-}
-
 /*
  * Read in command line input to execute.
  * @param input Pointer to a char * where user input is stored
