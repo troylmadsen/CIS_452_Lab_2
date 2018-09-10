@@ -1,14 +1,23 @@
+#include <bsd/sys/time.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/resource.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #define INPUT_SIZE 256
 #define MAX_ARGS 255
+
+/*
+ * A shell emulator that takes in user commands and executes them. Type "quit" to exit the program.
+ * @Version 1.0
+ * @Author Troy Madsen
+ * @Data: 2018/09/10
+ */
 
 /*
  * Read in command line input to execute.
@@ -73,6 +82,11 @@ int main() {
 	/* List of command line arguments */
 	char *args[MAX_ARGS];
 
+	/* Child uasge statistics */
+	long t_sec = 0;
+	long t_usec = 0;
+	long t_nivcsw = 0;
+
 	/* Begin execution commands */
 	while ( running ) {
 		/* Await input */
@@ -85,7 +99,7 @@ int main() {
 		tokenize( input, args );
 
 		/* Execute command input */
-		if ( strcmp( args[0], "exit" ) == 0 ) {
+		if ( strcmp( args[0], "quit" ) == 0 ) {
 			/* End loop operation */
 			running = false;
 		}
@@ -108,7 +122,19 @@ int main() {
 			else {
 				//FIXME Wait for child to finish then retrieve runtime info
 				waitpid( pid, &status, 0 );
-
+				struct rusage usage;
+				getrusage( RUSAGE_CHILDREN, &usage );
+				long c_sec = usage.ru_utime.tv_sec - t_sec;
+				long c_usec = usage.ru_utime.tv_usec - t_usec;
+				long c_nivcsw = usage.ru_nivcsw - t_nivcsw;
+				t_sec = usage.ru_utime.tv_sec;
+				t_usec = usage.ru_utime.tv_usec;
+				t_nivcsw = usage.ru_nivcsw;
+				struct timespec elapsed;
+				TIMEVAL_TO_TIMESPEC( &usage.ru_utime, &elapsed );
+				printf( "Child (%d) CPU usage: %ld seconds and %ld microseconds\n", pid, c_sec, c_usec );
+//				printf("Child (%d) CPU usage: \n", pid );
+				printf( "Child (%d) Involuntary Context Switches: %ld\n", pid, c_nivcsw );
 			}
 		}
 	}
