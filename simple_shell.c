@@ -34,6 +34,7 @@ void read_input( char **input ) {
 	/* Read into buffer */
 	fgets( buffer, INPUT_SIZE, stdin );
 
+	/* Store input for use */
 	*input = buffer;
 }
 
@@ -120,8 +121,10 @@ int main() {
 				}
 			}
 			else {
-				//FIXME Wait for child to finish then retrieve runtime info
+				/* Wait for child to finish */
 				waitpid( pid, &status, 0 );
+
+				/* Retrieve child resource usage */
 				struct rusage usage;
 				getrusage( RUSAGE_CHILDREN, &usage );
 				long c_sec = usage.ru_utime.tv_sec - t_sec;
@@ -130,10 +133,10 @@ int main() {
 				t_sec = usage.ru_utime.tv_sec;
 				t_usec = usage.ru_utime.tv_usec;
 				t_nivcsw = usage.ru_nivcsw;
-				struct timespec elapsed;
-				TIMEVAL_TO_TIMESPEC( &usage.ru_utime, &elapsed );
+
+				/* Displaying child resource usage */
+				printf( "\n" );
 				printf( "Child (%d) CPU usage: %ld seconds and %ld microseconds\n", pid, c_sec, c_usec );
-//				printf("Child (%d) CPU usage: \n", pid );
 				printf( "Child (%d) Involuntary Context Switches: %ld\n", pid, c_nivcsw );
 			}
 		}
