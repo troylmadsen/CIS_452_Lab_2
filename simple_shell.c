@@ -9,15 +9,14 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define INPUT_SIZE 256
-#define MAX_ARGS 256
+#define BUFFER_SIZE 256
 
 /*
  * A shell emulator that takes in user commands and executes them. Type "quit" to exit the program.
  * @Version 1.0
  * @Author Troy Madsen
  * @Author Tim DeVries
- * @Data: 2018/09/10
+ * @Date: 2018/09/10
  */
 
 /*
@@ -27,7 +26,7 @@
 void read_input( char **input ) {
 	/* Initial buffer setup */
 	char *buffer;
-	int buffer_size = INPUT_SIZE;
+	int buffer_size = BUFFER_SIZE;
 	buffer = (char *)malloc( buffer_size * sizeof( char ) );
 	if ( buffer == NULL ) {
 		perror( "Malloc failure" );
@@ -35,7 +34,8 @@ void read_input( char **input ) {
 	}
 
 	int num_read = 0;
-	char c = getc( stdin );
+	char c;
+	c = getc( stdin );
 	while ( c != '\n' ) {
 		/* Store character in buffer */
 		*(buffer + num_read) = c;
@@ -80,23 +80,56 @@ void read_input( char **input ) {
  * @param input Buffer of user input to parse
  * @param args Array of char * to store arguments into
  */
-void tokenize( char *input, char *args[] ) {
-	char *read;
+void tokenize( char *input, char ***args ) {
+	/* Initial buffer setup */
+	char **buffer;
+	int buffer_size = BUFFER_SIZE;
+	buffer = (char **)malloc( buffer_size * sizeof( char *) );
+	if ( buffer == NULL ) {
+		perror( "Malloc failure" );
+		exit( 1 );
+	}
+
 	int num_read = 0;
+	char *read;
 	read = strsep( &input, " " );
-	while ( read != NULL && num_read < MAX_ARGS ) {
+	while ( read != NULL ) {
 		/* Store into array */
-		args[num_read] = read;
+		*(buffer + num_read) = read;
 
 		/* Increment counter */
 		num_read++;
+
+		/* Resize buffer if full */
+		if ( num_read == buffer_size ) {
+			/* Store pointer to old buffer */
+			char **temp = buffer;
+
+			/* Double buffer size and reallocate */
+			buffer_size =  buffer_size * 2;
+			buffer = (char **)malloc( buffer_size * sizeof( char * ) );
+			if ( buffer == NULL ) {
+				perror( "Malloc error" );
+				exit( 1 );
+			}
+
+			/* Copy old buffer to new buffer */
+			for ( int i = 0; i < buffer_size / 2; i++ ) {
+				*(buffer + i) = *(temp + i);
+			}
+
+			/* Deallocate old buffer */
+			free( temp );
+		}
 
 		/* Read next argument */
 		read = strsep( &input, " " );
 	}
 
 	/* Ending args with NULL for execvp */
-	args[ num_read < MAX_ARGS ? num_read : MAX_ARGS - 1 ] = NULL;
+	*(buffer + num_read) = NULL;
+
+	*args = buffer;
 }
 
 /*
@@ -110,7 +143,7 @@ int main() {
 	char *input;
 
 	/* List of command line arguments */
-	char *args[MAX_ARGS];
+	char **args = NULL;
 
 	/* Child uasge statistics */
 	long t_sec = 0;
@@ -127,10 +160,10 @@ int main() {
 		read_input( &input );
 
 		/* Get list of arguments */
-		tokenize( input, args );
+		tokenize( input, &args );
 
 		/* Execute command input */
-		if ( strcmp( args[0], "quit" ) == 0 ) {
+		if ( strcmp( *(args + 0), "quit" ) == 0 ) {
 			/* End loop operation */
 			running = false;
 		}
@@ -145,7 +178,7 @@ int main() {
 			}
 			else if ( pid == 0 ) {
 				/* Execute command */
-				if ( execvp( args[0], &args[0] ) < 0 ) {
+				if ( execvp( *(args + 0), args ) < 0 ) {
 					perror( "Exec failed" );
 					exit( 1 );
 				}
@@ -174,6 +207,7 @@ int main() {
 
 		/* Freeing memory */
 		free( input );
+		free( args );
 	}
 
 	return 0;
