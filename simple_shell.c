@@ -50,7 +50,7 @@ void read_input( char **input ) {
 
 			/* Double buffer size and reallocate */
 			buffer_size =  buffer_size * 2;
-			buffer = (char *)malloc( buffer_size * sizeof( char * ) );
+			buffer = (char *)malloc( buffer_size * sizeof( char ) );
 			if ( buffer == NULL ) {
 				perror( "Malloc error" );
 				exit( 1 );
