@@ -15,7 +15,8 @@
 /*
  * A shell emulator that takes in user commands and executes them. Type "quit" to exit the program.
  * @Version 1.0
- * @Author Troy Madsen Tim DeVries
+ * @Author Troy Madsen
+ * @Author Tim DeVries
  * @Data: 2018/09/10
  */
 

@@ -1,0 +1,25 @@
+Script started on 2018-09-12 20:41:57-04:00
+]0;madsentr@arch09:~/CIS_452/projects/2[madsentr@arch09 2]$ make run
+clang -c -o simple_shell.o -Wall simple_shell.c
+clang -o simple_shell -Wall simple_shell.o
+./simple_shell
+Run commands. "quit" to exit.
+> ls -a
+.  ..  .git  .gitignore  Makefile  simple_shell  simple_shell.c  simple_shell.o  submission
+
+Child (29465) CPU usage: 0 seconds and 864 microseconds
+Child (29465) Involuntary Context Switches: 1
+> pwd
+/home/madsentr/CIS_452/projects/2
+
+Child (29466) CPU usage: 0 seconds and 377 microseconds
+Child (29466) Involuntary Context Switches: 0
+> ls .git
+branches  COMMIT_EDITMSG  config  description  FETCH_HEAD  HEAD  hooks	index  info  logs  objects  ORIG_HEAD  refs
+
+Child (29469) CPU usage: 0 seconds and 650 microseconds
+Child (29469) Involuntary Context Switches: 0
+> quit
+]0;madsentr@arch09:~/CIS_452/projects/2[madsentr@arch09 2]$ exit
+
+Script done on 2018-09-12 20:42:36-04:00
