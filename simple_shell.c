@@ -10,12 +10,12 @@
 #include <unistd.h>
 
 #define INPUT_SIZE 256
-#define MAX_ARGS INPUT_SIZE
+#define MAX_ARGS 256
 
 /*
  * A shell emulator that takes in user commands and executes them. Type "quit" to exit the program.
  * @Version 1.0
- * @Author Troy Madsen
+ * @Author Troy Madsen Tim DeVries
  * @Data: 2018/09/10
  */
 
@@ -33,11 +33,44 @@ void read_input( char **input ) {
 		exit( 1 );
 	}
 
-	/* Read into buffer */
-	fgets( buffer, INPUT_SIZE, stdin );
+	int num_read = 0;
+	char c = getc( stdin );
+	while ( c != '\n' ) {
+		/* Store character in buffer */
+		*(buffer + num_read) = c;
 
+		/* Increment counter */
+		num_read++;
 
-	/* Store input for use */
+		/* Resize buffer if full */
+		if ( num_read == buffer_size ) {
+			/* Store pointer to old buffer */
+			char *temp = buffer;
+
+			/* Double buffer size and reallocate */
+			buffer_size =  buffer_size * 2;
+			buffer = (char *)malloc( buffer_size * sizeof( char * ) );
+			if ( buffer == NULL ) {
+				perror( "Malloc error" );
+				exit( 1 );
+			}
+
+			/* Copy old buffer to new buffer */
+			for ( int i = 0; i < buffer_size / 2; i++ ) {
+				*(buffer + i) = *(temp + i);
+			}
+
+			/* Deallocate old buffer */
+			free( temp );
+		}
+
+		/* Read in next char */
+		c = getc( stdin );
+	}
+
+	/* Terminate the string with a NULL pointer */
+	*(buffer + num_read) = '\0';
+
 	*input = buffer;
 }
 
@@ -59,15 +92,6 @@ void tokenize( char *input, char *args[] ) {
 
 		/* Read next argument */
 		read = strsep( &input, " " );
-	}
-
-	/* Replace ending whitespace */
-	
-	if ( num_read > 0 ) {
-		char *end = args[ num_read - 1 ] + strlen( args[ num_read - 1 ] ) - 1;
-		if ( isspace( (unsigned char)*end ) ) {
-			*end = *"\0";
-		}
 	}
 
 	/* Ending args with NULL for execvp */
