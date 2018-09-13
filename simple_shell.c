@@ -117,6 +117,7 @@ int main() {
 	long t_nivcsw = 0;
 
 	/* Begin execution commands */
+	printf( "Run commands. \"quit\" to exit.\n" );
 	while ( running ) {
 		/* Await input */
 		printf( "> " );
